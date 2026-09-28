@@ -104,16 +104,59 @@ function getTotalTokens(){
   return totalTokens
 }
 
+
+function getRequestsByStatus(status){
+  return requests.filter((req)=>{
+    return req.status.toLowerCase() === status.toLowerCase()});
+}
+
+function getRequestsByModel(model){
+  return requests.filter((req)=>req.model.toLowerCase() === model.toLowerCase())
+}
+
+
+function getUserIds(){
+  let userIds = requests.map((req)=>req.userId);
+  return Array.from(new Set(userIds))
+  
+}
+
+function getUsageByUser(){
+// we want something like this 
+// { user_001 : inpTokens + output tokens for all the request}
+let userIds = getUserIds();
+console.log(userIds)
+let usage = {}
+requests.forEach((req)=>{
+  let totalTokens = req.inputTokens + req.outputTokens;
+  if(usage[req.userId]){
+    usage[req.userId] += totalTokens 
+  }else{
+    usage[req.userId] = totalTokens
+  }
+  })
+
+  return usage;
+}
 console.log(requests);
 
-console.log("::::::::::::::::::::::")
-console.log(getRequestById("req_001"))
-console.log("::::::::::::::::::::::")
-console.log(getRequestByUserId("user_002"))
-console.log("::::::::::::::::::::::")
-console.log(getCompletedRequests())
-console.log("::::::::::::::::::::::")
-console.log(getTotalTokens())
+console.log("::::::::::::::::::::::");
+console.log(getRequestById("req_001"));
+console.log("::::::::::::::::::::::");
+console.log(getRequestByUserId("user_002"));
+console.log("::::::::::::::::::::::");
+console.log(getCompletedRequests());
+console.log("::::::::::::::::::::::");
+console.log(getTotalTokens());
+console.log("::::::::::::::::::::::");
+console.log(getRequestsByStatus("pending"));
+console.log("::::::::::::::::::::::");
+console.log(getRequestsByModel("gpt"));
+console.log("::::::::::::::::::::::");
+console.log(...getUserIds())
+
+console.log("::::::::::::::::::::::::");
+console.log(getUsageByUser());
 console.log("long time no ceee");
 
 
