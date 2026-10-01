@@ -138,25 +138,97 @@ requests.forEach((req)=>{
 
   return usage;
 }
+
+function fakeLLMCall(){
+  return new Promise((resolve)=>{
+    setTimeout(()=>{resolve("LLM Response")
+    },2000)
+  });
+}
+
+function fakeVectorSearch(){
+  return new Promise((resolve)=>{
+    setTimeout(()=>{resolve(["embedding-1, embedding-2"]);
+    }, 1000);
+  });
+}
+
+
+function getUserPreferences(){
+  return new Promise((resolve)=>{
+    setTimeout(()=>{
+      resolve({
+        language:"en",
+        tempreture:0.7
+      });
+    },500);
+  });
+}
+
+
+async function prepareAIRequest(){
+
+  /**
+   * {
+      llmResponse: "LLM response",
+      context: ["embedding-1", "embedding-2"],
+      preferences: {
+        language: "en",
+        temperature: 0.7
+      }
+    }
+   */
+  return new Promise((resolve)=>{
+    let llmResponse =  fakeLLMCall();
+    let vectorResponse = fakeVectorSearch();
+    let userPref = getUserPreferences();
+
+    Promise.all([llmResponse,vectorResponse,userPref]).then(
+      (result)=>{
+        resolve({
+          llmResponse:result[0],
+          context:result[1],
+          preferences:result[2]
+        })
+      }
+    );
+
+  })
+ 
+}
+
+
 console.log(requests);
+console.log("Starting...");
 
-console.log("::::::::::::::::::::::");
-console.log(getRequestById("req_001"));
-console.log("::::::::::::::::::::::");
-console.log(getRequestByUserId("user_002"));
-console.log("::::::::::::::::::::::");
-console.log(getCompletedRequests());
-console.log("::::::::::::::::::::::");
-console.log(getTotalTokens());
-console.log("::::::::::::::::::::::");
-console.log(getRequestsByStatus("pending"));
-console.log("::::::::::::::::::::::");
-console.log(getRequestsByModel("gpt"));
-console.log("::::::::::::::::::::::");
-console.log(...getUserIds())
+// const result = fakeLLMCall("Explain embeddings");
+// result.then((response)=>{
+//   console.log(response);
+// })
+// console.log(result);
 
-console.log("::::::::::::::::::::::::");
-console.log(getUsageByUser());
-console.log("long time no ceee");
+console.time("request");
+prepareAIRequest().then(result=>{
+  console.log(result);
+  console.timeEnd("request");
+})
+console.log("finished")
 
+// console.log("::::::::::::::::::::::");
+// console.log(getRequestById("req_001"));
+// console.log("::::::::::::::::::::::");
+// console.log(getRequestByUserId("user_002"));
+// console.log("::::::::::::::::::::::");
+// console.log(getCompletedRequests());
+// console.log("::::::::::::::::::::::");
+// console.log(getTotalTokens());
+// console.log("::::::::::::::::::::::");
+// console.log(getRequestsByStatus("pending"));
+// console.log("::::::::::::::::::::::");
+// console.log(getRequestsByModel("gpt"));
+// console.log("::::::::::::::::::::::");
+// console.log(...getUserIds())
 
+// console.log("::::::::::::::::::::::::");
+// console.log(getUsageByUser());
+// console.log("long time no ceee");
