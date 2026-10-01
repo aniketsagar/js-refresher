@@ -178,22 +178,38 @@ async function prepareAIRequest(){
       }
     }
    */
-  return new Promise((resolve)=>{
-    let llmResponse =  fakeLLMCall();
-    let vectorResponse = fakeVectorSearch();
-    let userPref = getUserPreferences();
 
-    Promise.all([llmResponse,vectorResponse,userPref]).then(
-      (result)=>{
-        resolve({
-          llmResponse:result[0],
-          context:result[1],
-          preferences:result[2]
-        })
-      }
-    );
+  // the version below introduce new promise layer which is not necessery 
+  // also it doesn't use await which is legal but it can be cleaner
+  // return new Promise((resolve)=>{
+  //   let llmResponse =  fakeLLMCall();
+  //   let vectorResponse = fakeVectorSearch();
+  //   let userPref = getUserPreferences();
 
-  })
+  //   Promise.all([llmResponse,vectorResponse,userPref]).then(
+  //     (result)=>{
+  //       resolve({
+  //         llmResponse:result[0],
+  //         context:result[1],
+  //         preferences:result[2]
+  //       })
+  //     }
+  //   );
+
+  // })
+
+
+  const llm = fakeLLMCall();
+  const vectorResponse = fakeVectorSearch();
+  const userPref = getUserPreferences();
+
+  const [llmResponse,context,preferences] = await Promise.all([llm,vectorResponse,userPref]);
+
+  return {
+    llmResponse,
+    context,
+    preferences
+  }
  
 }
 
