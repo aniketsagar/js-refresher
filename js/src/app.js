@@ -146,9 +146,18 @@ function fakeLLMCall(){
   });
 }
 
+// function fakeVectorSearch(){
+//   return new Promise((resolve)=>{
+//     setTimeout(()=>{resolve(["embedding-1, embedding-2"]);
+//     }, 1000);
+//   });
+// }
+
 function fakeVectorSearch(){
-  return new Promise((resolve)=>{
-    setTimeout(()=>{resolve(["embedding-1, embedding-2"]);
+  return new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+      //resolve(["embedding-1, embedding-2"]);
+      reject(new Error("Vector database unavailable"));
     }, 1000);
   });
 }
@@ -227,6 +236,8 @@ console.time("request");
 prepareAIRequest().then(result=>{
   console.log(result);
   console.timeEnd("request");
+}).catch(error=>{
+  console.error("Request failed:", error.message);
 })
 console.log("finished")
 
@@ -248,3 +259,5 @@ console.log("finished")
 // console.log("::::::::::::::::::::::::");
 // console.log(getUsageByUser());
 // console.log("long time no ceee");
+
+
