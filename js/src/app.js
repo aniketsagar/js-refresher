@@ -140,8 +140,11 @@ requests.forEach((req)=>{
 }
 
 function fakeLLMCall(){
-  return new Promise((resolve)=>{
-    setTimeout(()=>{resolve("LLM Response")
+  return new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+       console.log("LLM finished");
+      //resolve("LLM Response")
+      reject(new Error("LLM call failed"))
     },2000)
   });
 }
@@ -207,23 +210,51 @@ async function prepareAIRequest(){
 
   // })
 
-
+  const default_userPreference = {
+        language:"en",
+        tempreture:0.7
+      }
   const llm = fakeLLMCall();
   const vectorResponse = fakeVectorSearch();
   const userPref = getUserPreferences();
 
-  const [llmResponse,context,preferences] = await Promise.all([llm,vectorResponse,userPref]);
-
-  return {
-    llmResponse,
-    context,
-    preferences
+  const [llmResponse,context,preferences] = await Promise.allSettled([llm,vectorResponse,userPref]);
+  
+  result = {
+    llmResponse :"",
+    context:"",
+    preferences:"",
+    error:[]
   }
+  if(llmResponse.status.toLowerCase()=== "rejected"){
+    result.llmResponse = ""
+    //return new Error("Error: Request failed, call to LLM failed");
+    throw new Error("Error: Request failed, call to LLM failed");
+
+  }else{
+    result.llmResponse = llmResponse.value
+  }
+
+  if(context.status.toLowerCase()=== "rejected"){
+    result.context = ""
+    result.error.push(context.reason) 
+  }else{
+    result.context = context.value
+  }
+
+  if(preferences.status.toLowerCase()=== "rejected"){
+    result.preferences = default_userPreference;
+    result.error.push(preferences.reason)
+  }else{
+    result.preferences = preferences.value
+  }
+
+  return result
  
 }
 
 
-console.log(requests);
+//console.log(requests);
 console.log("Starting...");
 
 // const result = fakeLLMCall("Explain embeddings");
