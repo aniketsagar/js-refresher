@@ -214,6 +214,7 @@ async function prepareAIRequest(){
         language:"en",
         tempreture:0.7
       }
+  const default_context = "";
   const llm = fakeLLMCall();
   const vectorResponse = fakeVectorSearch();
   const userPref = getUserPreferences();
@@ -226,27 +227,48 @@ async function prepareAIRequest(){
     preferences:"",
     error:[]
   }
-  if(llmResponse.status.toLowerCase()=== "rejected"){
-    result.llmResponse = ""
-    //return new Error("Error: Request failed, call to LLM failed");
-    throw new Error("Error: Request failed, call to LLM failed");
 
-  }else{
-    result.llmResponse = llmResponse.value
+  // console.log(llmResponse)
+  // console.log(context)
+  // if(llmResponse.status.toLowerCase()=== "rejected"){
+  //   result.llmResponse = ""
+  //   //return new Error("Error: Request failed, call to LLM failed");
+  //   throw new Error("Error: Request failed, call to LLM failed");
+
+  // }else{
+  //   result.llmResponse = llmResponse.value
+  // }
+  
+  
+  // if(context.status.toLowerCase()=== "rejected"){
+  //   result.context = ""
+  //   result.error.push(context.reason) 
+  // }else{
+  //   result.context = context.value
+  // }
+ 
+  // if(preferences.status.toLowerCase()=== "rejected"){
+  //   result.preferences = default_userPreference;
+  //   result.error.push(preferences.reason)
+  // }else{
+  //   result.preferences = preferences.value
+  // }
+  result.llmResponse = getSettledValues(llmResponse,"")
+  result.preferences = getSettledValues(preferences,default_userPreference)
+  result.context = getSettledValues(context,default_context);
+
+  const ctx_err = getSettledError(context);
+  const pref_err = getSettledError(preferences);
+  const llm_err = getSettledError(llmResponse);
+
+  if(ctx_err){
+    result.error.push(ctx_err);
   }
-
-  if(context.status.toLowerCase()=== "rejected"){
-    result.context = ""
-    result.error.push(context.reason) 
-  }else{
-    result.context = context.value
+  if(pref_err){
+    result.error.push(pref_err)
   }
-
-  if(preferences.status.toLowerCase()=== "rejected"){
-    result.preferences = default_userPreference;
-    result.error.push(preferences.reason)
-  }else{
-    result.preferences = preferences.value
+  if(llm_err){
+          throw new Error("Request failed, call to LLM failed");
   }
 
   return result
@@ -254,9 +276,26 @@ async function prepareAIRequest(){
 }
 
 
+function getSettledValues(result, fallback){
+  if(result.status === "rejected"){
+    return fallback                     
+  }else{
+    return result.value
+  }
+}
+
+function getSettledError(result){
+  if(result.status === "rejected"){
+    return result.reason;
+  }else{
+    return undefined
+  }
+}
 //console.log(requests);
 console.log("Starting...");
-
+let a = []
+a.push(undefined)
+ console.log(a)
 // const result = fakeLLMCall("Explain embeddings");
 // result.then((response)=>{
 //   console.log(response);
