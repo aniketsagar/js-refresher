@@ -46,7 +46,7 @@ const requests = [
 
 ];
 
-function getRequestById(id){
+function getRequestById2(id){
   let result = undefined;
   // for(const req of requests){
   //   if(req.id === id ){
@@ -63,7 +63,7 @@ function getRequestById(id){
   return result;
 }
 
-function getRequestByUserId(userId){
+function getRequestByUserId2(userId){
   // this is incorrect impel
   // let result = requests.find((req)=>{
   //   if(req.userId === userId){
@@ -75,7 +75,7 @@ function getRequestByUserId(userId){
   return result;
 }
 
-function getCompletedRequests(){
+function getCompletedRequests2(){
   let result =[]
 
   // this is too verbose
